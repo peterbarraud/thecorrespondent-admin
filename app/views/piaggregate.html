@@ -1,0 +1,60 @@
+<div class="">
+  <div class="row">
+    <div class="col-xs-9 col-xs-offset-1">
+      <div class="jumbotron" ng-hide="pageitemdetailsdata.aggregatecolumn.length > 0">
+        <h3>Choose number of layout columns</h3>
+        <p>
+          You can choose upto a maximum of 12 columns.
+        </p>
+        <div class="row">
+          <div class="col-xs-4 col-xs-offset-4">
+            <form>
+              <div class="form-group">
+                <select class="form-control" ng-model="$parent.layoutcolcount">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
+                </select>
+              </div>
+            </form>
+            <p><a class="btn btn-primary btn-lg" href="" role="button" ng-click="layoutcolselect()" ng-disabled="layoutcolcount<1">Continue</a></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="col-xs-12" ng-show="pageitemdetailsdata.aggregatecolumn.length > 0">
+      <div class="alert alert-danger alert-dismissible fade in" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+        <h4>Add tags to layout columns</h4>
+        <p>
+          Click <button type="button" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-plus"></span></button> in each column to add tag items to that layout column
+        </p>
+        <p>
+          You add tags to the column. Each tag that you add to a column needs to be assigned one or more stories.
+        </p>
+        <p>
+          When you add tags you can also to a column, you can also specify how the output will display. For example, you can specify that the story associated with the tag will display as a snippet linked to the main story.
+        </p>
+        <p> <button type="button" class="btn btn-info" data-dismiss="alert" aria-label="Close">Close this message</button> </p>
+      </div>
+      <div ng-class="getlayoutcolumnsize()" ng-repeat="layoutcolumn in pageitemdetailsdata.aggregatecolumn | orderBy:'position'" style='border:1px solid'>
+        <div class="" ng-repeat="aggregateitem in layoutcolumn.aggregateitem | orderBy:'position'" style="margin:2px;padding:5px;border:1px solid;">
+          {{aggregateitem.tag[0].name}} <button type="button" class="btn btn-danger btn-xs" title="Remove this tag" ng-click="removeaggregateitemfromcolumn($index,layoutcolumn)"><span class="glyphicon glyphicon-minus"></span></button>
+        </div>
+        <p>
+          <button style="margin-top:10px" type="button" class="btn btn-info btn-sm" ng-click="addaggregateitemtocolumn(layoutcolumn)" title="Add a tag to this column"><span class="glyphicon glyphicon-plus"></span></button>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,239 @@
+<div>
+  <div class="col-xs-3">
+    <!-- list of pages -->
+    <ul class="list-group">
+      <button type="button" ng-click='getthisitemdetails(pageitem.id)' ng-class="pagelistitemstyle(pageitem.id)" ng-repeat="pageitem in pageitems">{{pageitem.title}}</button>
+    </ul>
+    <!-- list of pages - END -->
+  </div>
+  <div class="col-xs-9">
+    <div class="row">
+      <div class="btn-toolbar" role="toolbar" aria-label="...">
+        <div class="btn-group" role="group" aria-label="...">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              New <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li ng-repeat="pagetemplate in pagetemplates" ng-click="newpage(pagetemplate)"><a href="">{{pagetemplate.title}}</a></li>
+            </ul>
+          <!-- <button type="button" class="btn btn-default">Edit <span class="glyphicon glyphicon-pencil"></span></button> -->
+          <button type="button" class="btn btn-default" ng-click="save()" ng-disabled="disablesave()">Save <span class="glyphicon glyphicon-floppy-save"></span></button>
+        </div>
+        <div class="btn-group" role="group" aria-label="...">
+          <button type="button" class="btn btn-default" ng-disabled="!pageitemdata">Publish <span class="glyphicon glyphicon-bullhorn"></span></button>
+          <button type="button" class="btn btn-default" ng-disabled="!pageitemdata">Unpublish</button>
+          <button type="button" class="btn btn-default">Publish all</button>
+        </div>
+        <div class="btn-group" role="group" aria-label="...">
+          <button type="button" class="btn btn-default" ng-click="opentagsdialog()">Tags <span class="glyphicon glyphicon-tags"></span></button>
+          <button type="button" class="btn btn-default" ng-click="openassetBrowserDialog()">Assets <span class="glyphicon glyphicon-file"></span></button>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <!-- page item -->
+      <form ng-show="pageitemdata">
+        <div class="form-group">
+          <label for="pageitemtitle">Title</label>
+          <input ng-model="pageitemdata.title"   type="text" class="form-control" id="pageitemtitle" placeholder="Title">
+        </div>
+      </form>      <!-- page item -->
+    </div>
+    <!-- page item details -->
+    <div class="row" ng-include="pagetemplate.url">
+    </div>
+    <!-- page item details - END-->
+  </div>
+
+  <!-- aggregate layout column selector modal -->
+  <div id="waitmodal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <img src="images/wait.gif" alt="" height='200px'/>
+      </div>
+    </div>
+  </div>
+  <!-- wait modal END -->
+
+
+  <!-- story tags modal -->
+    <div class="modal fade bs-example-modal-sm" id="storyTagsModal"  tabindex="-1" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3 class="modal-title">Tag manager</h3>
+            Use this dialog to create <button type="button" class="btn btn-default btn-sm">New <span class="glyphicon glyphicon-plus"></span></button> tags that you can then assign to stories.<br/>
+            Click <button type="button" class="btn btn-default btn-sm">Open <span class="glyphicon glyphicon-folder-open"></span></button> to view the complete list of available tags.<br/>
+            <div ng-hide="pageitemdata">
+              When you are working on a story, you will see the tags currently assigned to this story.<br/>
+            </div>
+            <div ng-show="pageitemdata">
+              If you need assign tags to this story, <button type="button" class="btn btn-default btn-sm">Open <span class="glyphicon glyphicon-folder-open"></span></button> the complete list of tags.<br/>
+              If you want to unassign a tag from a story, click the <span class="glyphicon glyphicon-minus" style='cursor: pointer;color:red'></span> to the right of the tag name.
+            </div>
+          </div>
+          <div class="modal-body">
+            <div class="btn-group" role="group" aria-label="...">
+              <button type="button" class="btn btn-default btn-sm" ng-click="openaddnewtagdialog()">New <span class="glyphicon glyphicon-plus"></span></button>
+              <button type="button" class="btn btn-default btn-sm" ng-click="getavailabletaglist()">Open <span class="glyphicon glyphicon-folder-open"></span></button>
+            </div>
+            <h4 ng-show="pageitemdata">List of story tags</h4>
+            <div class="row" style="margin-top:5px;">
+              <div class="col-xs-6" ng-if=" pageitemdata.tag.length > 0">
+                <table class="table">
+                  <tr ng-repeat="tag in  pageitemdata.tag">
+                    <td>
+                      <span class="bg-info" style="padding:8px 20px 8px 20px;">{{tag.name}} <span class="glyphicon glyphicon-minus" style='cursor: pointer;color:red' ng-click="unassigntagtostory(tag.id)"></span></span>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+              <div class="col-xs-12" ng-if=" pageitemdata.tag.length === 0">
+                The story currently does not have any tags assigned to it.<br>
+                To assign one or more tags to this story, click <button type="button" class="btn btn-default btn-sm">Open <span class="glyphicon glyphicon-folder-open"></span></button> to view the complete list of available tags.<br>
+              </div>
+
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary"  ng-click='save()' data-dismiss="modal" ng-show="pageitemdata">Save</button>
+            <button type="button" class="btn btn-warning" data-dismiss="modal" ng-show="pageitemdata">Cancel</button>
+            <button type="button" class="btn btn-warning" data-dismiss="modal" ng-hide="pageitemdata">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- story tags modal -->
+
+    <!-- create tags modal -->
+      <div class="modal fade bs-example-modal-sm" id="createTagsModal"  tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Add new tag</h4>
+            </div>
+            <div class="modal-body">
+              <form>
+                <div class="form-group">
+                  <label for="tagname">Tag name</label>
+                  <input type="text" class="form-control" id="tagname" placeholder="Name of tag" ng-model='newtag.name'>
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-success" ng-click="savetag()">Save</button>
+              <button type="button" class="btn btn-warning" data-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- create tags modal -->
+
+    <!-- tag list modal -->
+      <div class="modal fade bs-example-modal-sm" id="availableTagsModal"  tabindex="-1" role="dialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">List of tags</h4>
+              <h5>This is the list of all available tags in the system</h5>
+              <div ng-show="pageitemdata">
+                If you want to assign some of these tags to stories, either select a story on the left rail or create a new story
+              </div>
+              <div ng-show="pageitemdata">
+                Click the <span class="glyphicon glyphicon-plus" style='cursor: pointer;'></span></span> next to a tag name to assign the tag to the current story<br/>
+                You can assign as many tags to a story as you want<br/>
+                After you're done assigning the tags, <button type="button" class="btn btn-primary">Close</button> the dialog.
+              </div>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <tr ng-repeat="tag in availabletaglist">
+                  <td>
+                    <span class="bg-info" style="padding:8px 20px 8px 20px;">{{tag.name}} <span ng-show="pageitemdata" class="glyphicon glyphicon-plus" style='cursor: pointer;' ng-click="assigntagtostory(tag.id)"></span></span>
+                    <!-- <span class="bg-info" style="padding:8px 20px 8px 20px;">{{tag.name}} <span class="glyphicon glyphicon-tags"></span></span> -->
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- tag list modal -->
+      <!-- layout tag list modal -->
+        <div class="modal fade bs-example-modal-sm" id="availablelayoutTagsModal"  tabindex="-1" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">List of tags</h4>
+                <h5>This is the list of all available tags in the system</h5>
+                <p>
+                  Choose a tag to add to the current selected layout column.
+                </p>
+                <p>
+                  Also, choose a item type to add to the layout column.
+                </p>
+              </div>
+              <div class="modal-body">
+                <div style="height:400px;overflow:auto;">
+                  <div class="row" ng-repeat="tag in availabletaglist">
+                    <div class="radio col-xs-offset-1">
+                      <label>
+                        <input type="radio" ng-model="$parent.layouttag" ng-value="tag" ng-click="resetselectedtag()">
+                        {{tag.name}}
+                      </label>
+                      <div ng-show="$parent.layouttag.id === tag.id">
+                        <div class="col-xs-6">
+                          <p>
+                            <label for="">Select the output type</label>
+                            <select class="form-control" ng-model="$parent.selectedaggregateitemtypeid">
+                              <option ng-repeat="aggregateitemtype in aggregateitemtypes" value="{{aggregateitemtype.id}}">{{aggregateitemtype.title}}</option>
+                            </select>
+                          </p>
+                          <p>
+                            <label for="">Enter the maximum length of the output</label>
+                            <input type="text" class="form-control" ng-model="$parent.aggregateitem.maxlength">
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" ng-click="addtagtolayoutcolumn()" ng-disabled="islayouttagselected()">OK</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- layout tag list modal -->
+      <!-- file browser dialog modal -->
+        <div class="modal fade bs-example-modal-sm" id="fileBrowserModal"  tabindex="-1" role="dialog">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title">List of assets</h4>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="exampleInputFile"></label>
+                  <input type="file" id="pageasset">
+                </div>
+                <button type="button" ng-click="uploadfile()" class="btn btn-default">Upload <span class="glyphicon glyphicon-upload"></span></button>
+                <div class="" ng-repeat="pageasset in pageassets">
+                  <img ng-src="{{pageasset.url}}" alt="" style="height:70px;" ng-click="selectimage(pageasset)"/>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- layout tag list modal -->
+
+
+</div>

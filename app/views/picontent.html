@@ -1,0 +1,26 @@
+<div class="">
+  {{detailpageurl}}
+  <form>
+    <div class="row">
+      <div class="form-group col-xs-10">
+        <label for="subtitle">Subtitle</label>
+        <input type="text" ng-model="pageitemdetailsdata.subtitle" class="form-control" id="subtitle" placeholder="Subtitle">
+      </div>
+      <div class="col-xs-2" style="border:1px solid">
+        <!-- the following two images are because of a strange behaviour
+        ng-src that does not seem to mark the image as black if the value was set
+        if user selects a story that has a title image the ng-src is set
+        if the user then clicks another story that does not have a title image, the title image of the previous story still appears in the ng-src
+        not sure right now if this is a but or a feature
+        anyway, we are showing a dummy non-existent image if the title image is not found
+       -->
+        <img ng-show="pageitemdetailsdata.titleimageurl" ng-click="openassetBrowserDialog('chooseTitleImage')" ng-src="{{pageitemdetailsdata.titleimageurl}}" alt="No Title image selected" style="height:70px;width:100%"/>
+        <img ng-hide="pageitemdetailsdata.titleimageurl" ng-click="openassetBrowserDialog('chooseTitleImage')" ng-src="abc.xyz" alt="No Title image selected" style="height:70px;width:100%"/>
+        <button type="button" class="btn btn-primary btn-xs" ng-click="openassetBrowserDialog('chooseTitleImage')">Choose a title image</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <textarea rows=1 storyckeditor="editorOptions" name=storyeditor ng-model="pageitemdetailsdata.body"></textarea>
+    </div>
+  </form>
+</div>

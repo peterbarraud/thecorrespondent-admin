@@ -1,0 +1,23 @@
+<?php
+require_once dirname(__FILE__) . '/common/objectbase.php';
+class pageitem extends objectbase {
+  public function Save() {
+    //manually set the page name
+    //for now only set page name if this page has never been published
+    //this implies that the user can keep changing the name but only as long as the page has never been published
+    if ($this->publishdate == '' || !isset($this->publishdate) || is_null($this->publishdate)) {
+      $this->pagename = str_replace(' ', '-', $this->title); // Replaces all spaces with hyphens.
+      $this->pagename = preg_replace('/[^A-Za-z0-9\-]/', '', $this->pagename); // Removes special chars.
+      $this->pagename = strtolower($this->pagename);
+      $this->pagename .= '.php';
+    }
+    if (!$this->id) {
+			$this->createdate = 'now()';
+		}
+		$this->modifieddate = 'now()';
+    objectbase::Save();
+
+  }
+  
+}
+?>
