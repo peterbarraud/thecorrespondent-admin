@@ -173,6 +173,7 @@ class DataLayer {
 
         $execute_query .= ' where id = ' . $id;
       }
+      $logger = new Logger();
   		if ($this->conn->query($execute_query)) {
   			$object->id = $this->conn->insert_id == 0 ? $object->id : $this->conn->insert_id;
   		}

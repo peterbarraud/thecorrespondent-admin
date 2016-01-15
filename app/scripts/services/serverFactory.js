@@ -74,6 +74,16 @@ angular.module('thecorrespondentApp')
         });
     },
 
+    getmenu : function(scope,callback) {
+      $http.get(util.restAPIURL($location) + 'rest.api.php/getmenu/').
+        success(function(data) {
+          scope[callback](data);
+        }).
+        error(function(data) {
+          console.log(data);
+        });
+    },
+
     getemptylayoutcolumns : function(scope,callback) {
       $http.get(util.restAPIURL($location) + 'rest.api.php/getemptylayoutcolumns/' + scope.layoutcolcount).
         success(function(data) {
@@ -113,7 +123,6 @@ angular.module('thecorrespondentApp')
       }
     },
 
-
     saveitemdetails : function(scope,itemDetails,itemtype,callback) {
       var paramsObject = {itemObject:JSON.stringify(itemDetails)};
       var httpPostParams = [];
@@ -140,6 +149,45 @@ angular.module('thecorrespondentApp')
         console.log(data);
       });
     },
+
+    insertafter : function(scope,itemDetails,insertafterposition,itemtype,callback) {
+      var paramsObject = {itemObject:JSON.stringify(itemDetails)};
+      var httpPostParams = [];
+      for (var key in paramsObject) {
+        httpPostParams.push(key + '=' + encodeURIComponent(paramsObject[key]));
+      }
+      httpPostParams = httpPostParams.join('&');
+      $http({
+        method: 'POST',
+        url: util.restAPIURL($location) + 'rest.api.php/insertafter/' + itemtype + '/' + insertafterposition +  '/',
+        data: httpPostParams,
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+      }).
+      success(function(data) {
+        // actually the callback should not be predefined. but we're keeping this hack here for legacy
+        if (angular.isDefined(callback)) {
+          scope[callback](data);
+        }
+        else {
+          scope.managesaveitem (data);
+        }
+      }).
+      error(function(data) {
+        console.log(data);
+      });
+    },
+
+    deleteitem : function(itemid,itemtype,scope,callback) {
+      $http.get(util.restAPIURL($location) + 'rest.api.php/deleteitem/' + itemtype + '/' + itemid).
+      success(function(data) {
+        scope[callback](data);
+        }).
+      error(function(data) {
+        console.log(data);
+        });
+    },
+
+
 
     executesqlquery : function(scope) {
       var paramsObject = {sqlquery:JSON.stringify(scope.dbquery.query)};

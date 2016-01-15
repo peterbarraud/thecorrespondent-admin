@@ -12,11 +12,15 @@ angular.module('thecorrespondentApp')
     serverFactory.getitemsorderbyattr('pageitem','modifieddate','desc',$scope,'gotpageitems');
     serverFactory.getitems('pagetemplate',$scope,'gotpagetemplates');
     serverFactory.getitems('aggregateitemtype',$scope,'gotaggregateitemtypes');
+    serverFactory.getmenu($scope,'gotmenu');
     $scope.pidetailsurl = 'picontent';
+    $scope.listview = 'pageview';
+
 
     $scope.gotpageitems = function(data){
       $scope.pageitems = data.Items;
       $('#waitmodal').modal('hide');
+      $scope.pageloadingcounter -= 1;
     };
 
     $scope.gotpagetemplates = function(data){
@@ -27,8 +31,25 @@ angular.module('thecorrespondentApp')
       $scope.aggregateitemtypes = data.Items;
     };
 
+    $scope.gotmenu = function(data){
+      $scope.sitemenu = data;
+      $('#waitmodal').modal('hide');
+    };
+
+
     $scope.pagelistitemstyle = function(pageitemid){
       var retval = 'list-group-item';
+      if (angular.isDefined($scope.pageitemdata)){
+        if (pageitemid === $scope.pageitemdata.id){
+          retval += ' active';
+        }
+
+      }
+      return retval;
+    };
+
+    $scope.menulistitemstyle = function(pageitemid){
+      var retval = 'btn btn-primary btn-xs';
       if (angular.isDefined($scope.pageitemdata)){
         if (pageitemid === $scope.pageitemdata.id){
           retval += ' active';
@@ -228,7 +249,7 @@ angular.module('thecorrespondentApp')
 
     // story tags - END
 
-    // image handling
+    // asset handling
 
     $scope.openassetBrowserDialog = function(chooseTitleImage){
       // just to make sure, set the variable to false
@@ -288,9 +309,76 @@ angular.module('thecorrespondentApp')
       }
       // alert(imageurl);
     };
+    // asset handling
 
+    // site menu
+    $scope.addmenu = function(selectedmenu){
+      $('#waitmodal').modal('show');
+      $scope.selectedmenu = selectedmenu;
+      serverFactory.getitem(-1,'menu',$scope,'gotmenutitle');
+    };
 
-    // image handline - END
+    $scope.gotmenutitle = function(data){
+      $scope.newmenu = data;
+      $scope.insertposition = {
+        position:angular.isDefined($scope.selectedmenu) ? parseInt($scope.selectedmenu.position) : 0,
+        relation:'after',
+      };
+      $('#waitmodal').modal('hide');
+      $('#menutitledialog').modal('show');
+    };
 
+    $scope.savemenutitle = function(data){
+      serverFactory.insertafter($scope,$scope.newmenu,$scope.insertposition.position,'menu','savedmenu');
+    };
+    $scope.savedmenu = function(){
+      serverFactory.getmenu($scope,'gotmenu');
+      $('#menutitledialog').modal('hide');
+    };
+
+    $scope.removemenu = function(selectedmenu){
+      $('#waitmodal').modal('show');
+      serverFactory.deleteitem(selectedmenu.id,'menu',$scope,'removedmenu');
+    };
+    $scope.removedmenu = function(){
+      serverFactory.getmenu($scope,'gotmenu');
+    };
+
+    // menu items
+    $scope.addmenuitem = function(selectedmenu){
+      $scope.selectedmenu = selectedmenu;
+      $scope.menuitemtitle = '';
+      $('#menuitemdialog').modal('show');
+    };
+
+    $scope.savemenuitem = function(){
+      $('#menuitemdialog').modal('hide');
+      $('#waitmodal').modal('show');
+      serverFactory.getitem(-1,'menuitem',$scope,'gotmenuitem');
+    };
+
+    $scope.gotmenuitem = function(data){
+      var selectedmenuitem = data;
+      selectedmenuitem.title = $scope.menuitemtitle;
+      selectedmenuitem.pageitem[0] = $scope.selectedpageitem;
+      selectedmenuitem.menu = $scope.selectedmenu;
+      serverFactory.insertafter($scope,selectedmenuitem,0,'menuitem','savedmenuitem');
+    };
+
+    $scope.savedmenuitem = function(data){
+      // $scope.selectedmenu.menuitem[0] = data;
+      serverFactory.getmenu($scope,'gotmenu');
+    };
+
+    $scope.removemenuitem = function(selectedmenuitem){
+      $('#waitmodal').modal('show');
+      serverFactory.deleteitem(selectedmenuitem.id,'menuitem',$scope,'removemenuitem');
+    };
+    $scope.removedmenu = function(){
+      serverFactory.getmenu($scope,'gotmenu');
+      $('#waitmodal').modal('hide');
+    };
+
+    // site menu - END
 
   }]);

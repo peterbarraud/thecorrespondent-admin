@@ -37,6 +37,25 @@
 		echo json_encode($items);
 	});
 
+	$app->get('/getmenu/',function() {
+		require_once 'dataobjectserver/application.php';
+		$application = Application::getinstance();
+		$sortby['position'] = 'asc';
+		$menudetails = array();
+		$menu = $application->GetObjectsByClassName('menu',$sortby,1);
+		for ($i=0;$i<sizeof($menu->Items);$i++){
+			$menutitle = $menu->Items[$i];
+			for ($j=0;$j<sizeof($menutitle->menuitem);$j++){
+				$menuitem = $menutitle->menuitem[$j];
+				$menutitle->menuitem[$j] = $application->GetObjectById('menuitem',$menuitem->id,1);
+			}
+			$menudetails[$i] = $menutitle;
+		}
+
+		allow_cross_domain_calls();
+		echo json_encode($menudetails);
+	});
+
 	$app->get('/getemptylayoutcolumns/:colcount/',function($colcount) {
 		require_once 'dataobjectserver/application.php';
 		$application = Application::getinstance();
@@ -92,12 +111,18 @@
 		allow_cross_domain_calls();
 		echo json_encode($pageitemcollection);
 	});
+	$app->get('/deleteitem/:itemtype/:itemid/',function($itemtype,$itemid) {
+		require_once 'dataobjectserver/application.php';
+		$application = Application::getinstance();
+		$item = $application->GetObjectById($itemtype,$itemid);
+		$item->Delete();
+		allow_cross_domain_calls();
+		echo json_encode($item);
+	});
 
 	$app->post('/saveitem/:itemtype/',function($itemtype) use ($app) {
 		require_once 'dataobjectserver/application.php';
 		$application = Application::getinstance();
-		$logger = new Logger('saveitem');
-		$logger->AppendLine($app->request->post('itemObject'));
 		//cast the json object to a well formed php object based on the data object model
 		$itemdetails = $application->GetObjectForJSON(json_decode($app->request->post('itemObject')),$itemtype);
 		$itemdetails->Save();
@@ -105,13 +130,35 @@
 		echo json_encode($itemdetails);
 	});
 	$app->get('/testsave/',function() {
-		$saveitemdetails = '{"ServerErr":"","ServerErrNo":0,"ServerErrType":"","id":null,"pageitem":[],"aggregatecolumn":[{"ServerErr":"","ServerErrNo":0,"ServerErrType":"","id":null,"position":1,"aggregateitem":[{"ServerErr":"","ServerErrNo":0,"ServerErrType":"","id":null,"maxlength":-1,"position":null,"aggregatecolumn":[],"aggregateitemtype":[{"ServerErr":"","ServerErrNo":0,"ServerErrType":"","id":"1","title":"Snippet","$$hashKey":"object:159"}],"tag":[{"ServerErr":"","ServerErrNo":0,"ServerErrType":"","id":"34","name":"a","$$hashKey":"object:250"}],"$$hashKey":"object:412"}],"piaggregate":[],"$$hashKey":"object:77"}]}';
-		$itemtype = 'piaggregate';
+		$saveitemdetails = '{"ServerErr":"","ServerErrNo":0,"ServerErrType":"","id":null,"title":"style","position":2}';
+		$itemtype = 'menu';
 		require_once 'dataobjectserver/application.php';
 		$application = Application::getinstance();
 		$itemdetails = $application->GetObjectForJSON(json_decode($saveitemdetails),$itemtype);
 		$itemdetails->Save();
-		// echo $itemdetails;
+	});
+
+	$app->post('/insertafter/:itemtype/:insertafterposition/',function($itemtype,$insertafterposition) use ($app) {
+		require_once 'dataobjectserver/application.php';
+		$application = Application::getinstance();
+		$logger = new Logger('insertafter');
+		$logger->Write($app->request->post('itemObject'));
+		//cast the json object to a well formed php object based on the data object model
+		$itemdetails = $application->GetObjectForJSON(json_decode($app->request->post('itemObject')),$itemtype);
+		$itemdetails->InsertAfter($insertafterposition);
+		allow_cross_domain_calls();
+		echo json_encode($itemdetails);
+	});
+
+	$app->get('/testinsertafter/',function() use ($app) {
+		$saveitemdetails = '{"ServerErr":"","ServerErrNo":0,"ServerErrType":"","id":null,"title":"","position":null,"menu":{"ServerErr":"","ServerErrNo":0,"ServerErrType":"","id":"29","title":"b11","position":"3","menuitem":[],"$$hashKey":"object:187"},"pageitem":[{"ServerErr":"","ServerErrNo":0,"ServerErrType":"","id":"16","title":"another story","publishdate":null,"pagename":"another-story.php","createdate":"2016-01-10 22:23:58","modifieddate":"2016-01-10 22:23:58","readonly":null,"$$hashKey":"object:41"}]}';
+		require_once 'dataobjectserver/application.php';
+		$application = Application::getinstance();
+		//cast the json object to a well formed php object based on the data object model
+		$itemdetails = $application->GetObjectForJSON(json_decode($saveitemdetails),'menuitem');
+		// $itemdetails->InsertAfter(0);
+		allow_cross_domain_calls();
+		echo json_encode($itemdetails);
 	});
 
 	$app->post('/executesqlquery/',function() use ($app) {

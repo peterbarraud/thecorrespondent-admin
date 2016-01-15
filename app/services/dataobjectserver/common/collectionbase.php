@@ -1,4 +1,4 @@
-<?php 
+<?php
 require_once dirname(__FILE__) . '/applicationbase.php';
 class collectionbase extends applicationbase {
 	public function __construct($classAttrValuePairs=null,$sortby=null,$getrelatedobjectcollection = 0) {
@@ -35,7 +35,7 @@ class collectionbase extends applicationbase {
 
 
 
-  
+
 
 
 ?>
